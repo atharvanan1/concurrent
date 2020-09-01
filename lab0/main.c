@@ -41,6 +41,57 @@ void quicksort(int *array, int lo, int hi) {
     }
 }
 
+void merge(int * array, int lo, int mid, int hi) {
+//    print(array, 0, 9);
+    int num_arrayl = mid - lo + 1;
+    int num_arrayh = hi - mid; 
+    int arrayl[num_arrayl];
+    int arrayh[num_arrayh];
+
+    for (int index = 0; index < num_arrayl; index++) {
+        arrayl[index] = array[index + lo];
+    }
+    for (int index = 0; index < num_arrayh; index++) {
+        arrayh[index] = array[mid + index + 1];
+    }
+
+    int indexl = 0;
+    int indexh = 0;
+    int indexm = lo;
+    while (indexl < num_arrayl && indexh < num_arrayh) {
+        if (arrayl[indexl] <= arrayh[indexh]) {
+            array[indexm] = arrayl[indexl];
+            indexl++;
+        }
+        else {
+            array[indexm] = arrayh[indexh];
+            indexh++;
+        }
+        indexm++;
+    }
+
+    while (indexl < num_arrayl) {
+        array[indexm] = arrayl[indexl];
+        indexm++;
+        indexl++;
+    }
+
+    while (indexh < num_arrayh) {
+        array[indexm] = arrayh[indexh];
+        indexm++;
+        indexh++;
+    }
+}
+
+void mergesort(int *array, int lo, int hi) {
+    if (lo < hi) {
+        int mid = (hi - lo) / 2 + lo;
+        mergesort(array, lo, mid);
+        mergesort(array, mid + 1, hi);
+        merge(array, lo, mid, hi);
+    }
+}
+
 int main (int argc, char **argv)
 {
     /* Argument Parsing */
@@ -96,7 +147,7 @@ int main (int argc, char **argv)
         quicksort(num_array, 0, numbers-1);
     }
     else if (!strcmp(algo, "merge")) {
-        //printf("merge sort\n");
+        mergesort(num_array, 0, numbers-1);
     }
 
     if (out_file == NULL) {
