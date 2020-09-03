@@ -5,91 +5,13 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "mergesort.h"
+#include "quicksort.h"
 
 void usage(void)
 {
     fprintf(stderr, "Incorrect usage\n");
-}
-
-void swap(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-int partition(int *array, int lo, int hi) {
-    int i = lo - 1;
-    int j = lo;
-    int pivot = array[hi];
-    for (j = lo; j < hi; j++) {
-        if (array[j] <= pivot) {
-            i++;
-            swap(&array[i], &array[j]);
-        }
-    }
-    swap(&array[i + 1], &array[hi]);
-    return i + 1;
-}
-
-void quicksort(int *array, int lo, int hi) {
-    int p = partition(array, lo, hi);
-    if (p != lo) {
-        quicksort(array, lo, p - 1);
-    }
-    if (p != hi) {
-        quicksort(array, p + 1, hi);
-    }
-}
-
-void merge(int * array, int lo, int mid, int hi) {
-//    print(array, 0, 9);
-    int num_arrayl = mid - lo + 1;
-    int num_arrayh = hi - mid; 
-    int arrayl[num_arrayl];
-    int arrayh[num_arrayh];
-
-    for (int index = 0; index < num_arrayl; index++) {
-        arrayl[index] = array[index + lo];
-    }
-    for (int index = 0; index < num_arrayh; index++) {
-        arrayh[index] = array[mid + index + 1];
-    }
-
-    int indexl = 0;
-    int indexh = 0;
-    int indexm = lo;
-    while (indexl < num_arrayl && indexh < num_arrayh) {
-        if (arrayl[indexl] <= arrayh[indexh]) {
-            array[indexm] = arrayl[indexl];
-            indexl++;
-        }
-        else {
-            array[indexm] = arrayh[indexh];
-            indexh++;
-        }
-        indexm++;
-    }
-
-    while (indexl < num_arrayl) {
-        array[indexm] = arrayl[indexl];
-        indexm++;
-        indexl++;
-    }
-
-    while (indexh < num_arrayh) {
-        array[indexm] = arrayh[indexh];
-        indexm++;
-        indexh++;
-    }
-}
-
-void mergesort(int *array, int lo, int hi) {
-    if (lo < hi) {
-        int mid = (hi - lo) / 2 + lo;
-        mergesort(array, lo, mid);
-        mergesort(array, mid + 1, hi);
-        merge(array, lo, mid, hi);
-    }
+    fprintf(stderr, "Usage: mysort <input_file> [-o output_file] --alg=<merge|quick>\n");
 }
 
 int main (int argc, char **argv)
@@ -166,4 +88,3 @@ int main (int argc, char **argv)
     fclose (src);
     return 0;
 }
-
