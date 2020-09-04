@@ -29,6 +29,12 @@ int main (int argc, char **argv)
     char algo[6];
     char *out_file = NULL;
 
+    /* If no arguments are provided, exit */
+    if (argc == 1) {
+        usage();
+        exit(EXIT_FAILURE);
+    }
+
     static struct option long_options[] = {
         {"name", no_argument, NULL, 'n'},
         {"alg", required_argument, NULL, 'a'}
@@ -40,7 +46,7 @@ int main (int argc, char **argv)
                 strcpy(out_file, optarg);
                 break;
             case 'n':
-                printf("Name - \n");
+                printf("Name - Atharva Nandanwar\n");
                 // This is used to address any condition where
                 // '-o' and '--name' parameters are provided together
                 if (out_file != NULL) free(out_file);
@@ -51,8 +57,8 @@ int main (int argc, char **argv)
                 break;
             default:
                 usage();
+                exit(EXIT_FAILURE);
         }
-
     }
         
     char* src_file = argv[optind];
