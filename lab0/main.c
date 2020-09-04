@@ -41,6 +41,9 @@ int main (int argc, char **argv)
                 break;
             case 'n':
                 printf("Name - \n");
+                // This is used to address any condition where
+                // '-o' and '--name' parameters are provided together
+                if (out_file != NULL) free(out_file);
                 exit(EXIT_SUCCESS);
                 break;
             case 'a':

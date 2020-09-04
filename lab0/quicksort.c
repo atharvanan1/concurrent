@@ -6,6 +6,12 @@
  **/
 #include "quicksort.h"
 
+/**
+ * Note - a lot of motivation for this algorithm comes after watching the 
+ * following video
+ * https://www.youtube.com/watch?v=PgBzjlCcFvc&feature=emb_logo&ab_channel=GeeksforGeeks
+ **/
+
 /* Function to swap using references */
 void swap(int *a, int *b) {
     int temp = *a;

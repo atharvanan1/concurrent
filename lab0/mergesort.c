@@ -6,6 +6,13 @@
  **/
 #include "mergesort.h"
 
+/**
+ * Note - Initially, I designed this code by referring to dividing scheme
+ * used here - https://www.geeksforgeeks.org/merge-sort/
+ * Later, when I redesigned the code by myself, I came up with similar 
+ * scheme.
+ **/
+
 /* Merge two unsorted lists */
 void merge(int *array, int lo, int p, int hi) {
     /* Create temporary arrays */
