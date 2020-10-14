@@ -20,24 +20,32 @@ void* sort_bucket(void *args) {
     
     pthread_barrier_wait(&bar);
 
+    // Start timing
 	if(bucket_array->thread_number == 1){
 		clock_gettime(CLOCK_MONOTONIC,&start_time);
 	}
     printf("Thread - %d\n", bucket_array->thread_number);
 	pthread_barrier_wait(&bar);
 	
+    // Sort the array
     std::sort(bucket_array->array, bucket_array->array + bucket_array->elements);
-
-	printf("Thread %d reporting for duty\n", bucket_array->thread_number);
+    printf("Thread %d reporting for duty\n", bucket_array->thread_number);
 
 	pthread_barrier_wait(&bar);
 	
 	return 0;
 }
 
+/**
+ * @brief bucketsort
+ * 
+ * @param array - array to sort
+ * @param numbers - number of elements to sort
+ * @param threads - number of threads to spawn
+ */
 void bucketsort(int *array, int numbers, int threads)
 {
-    // Split into buckets - criteria for bucket
+    // Find the divider element
     int max_value = 0;
     int min_value = __INT_MAX__;
     for (int index = 0; index < numbers; index++) {
@@ -48,7 +56,6 @@ void bucketsort(int *array, int numbers, int threads)
             max_value = *(array + index);
         }
     }
-
     int divider = (int) ceil((max_value - min_value) / (double) threads);
 
     // Actually separate elements into bucket
@@ -106,6 +113,7 @@ void bucketsort(int *array, int numbers, int threads)
 
     pthread_barrier_destroy(&bar);
 
+    // Join the buckets after being sorted
     for (int i = 0, index = 0; i < threads; i++) {
         for (int j = 0; j < bucket_array[i].elements; j++) {
             *(array + index) = buckets[i][j];

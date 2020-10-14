@@ -14,11 +14,14 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include "mergesort.h"
-#include "quicksort.h"
 #include "bucketsort.h"
 
-#define THREAD_MAX 150
+// Limit the maximum number of threads
+#define THREAD_MAX 200
+// Multiplier for nanoseconds
+#define NANO_MULT 1000000000
 
+// Global variables to be used for multithreading
 pthread_barrier_t bar;
 pthread_mutex_t lock_b;
 struct timespec start_time, end_time;
@@ -56,7 +59,7 @@ int main (int argc, char **argv)
                 strcpy(out_file, optarg);
                 break;
             case 'n':
-                printf("Name - \n");
+                printf("Name - Atharva Nandanwar\n");
                 // This is used to address any condition where
                 // '-o' and '--name' parameters are provided together
                 if (out_file != NULL) free(out_file);
@@ -94,6 +97,7 @@ int main (int argc, char **argv)
         }
     }
 
+    // Limit the number of threads
     if (threads > numbers) {
         fprintf(stderr, "WARNING: Reducing number of threads to match number of elements or THREAD_MAX\n");
         if (numbers > THREAD_MAX) {
@@ -108,7 +112,6 @@ int main (int argc, char **argv)
         threads = THREAD_MAX;
     }
 
-    //printf("Array - %p\n", num_array);
     /* Select algorithm */
     if (!strcmp(algo, "fjmerge")) {
         mergesort_thread_spawn(num_array, numbers, threads);
@@ -134,9 +137,9 @@ int main (int argc, char **argv)
 
     // Timing logic
     uint64_t time_ns;
-	time_ns = (end_time.tv_sec-start_time.tv_sec)*1000000000 + (end_time.tv_nsec-start_time.tv_nsec);
+	time_ns = (end_time.tv_sec - start_time.tv_sec) * NANO_MULT + (end_time.tv_nsec-start_time.tv_nsec);
 	printf("Time passed in ns: %lu\n", time_ns);
-	double time_s = ((double) time_ns)/1000000000.0;
+	double time_s = ((double) time_ns) / NANO_MULT;
 	printf("Time passed in s : %lf\n", time_s);
 
     /* Free allocated memory blocks */
