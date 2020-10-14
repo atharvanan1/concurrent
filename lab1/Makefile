@@ -5,12 +5,12 @@
 # Concurrent Programming
 # Date - 09/03/2020
 
-CC := gcc
+CC := g++
 CFLAGS = -Wall \
 		 -Werror
 
-mysort: main.c mergesort.c quicksort.c
-	@$(CC)  -o $@ $? 
+mysort: main.c mergesort.c bucketsort.c
+	@$(CC) -o $@ $? -lm -pthread
 	@echo "mysort application compiled."
 
 .PHONY: clean

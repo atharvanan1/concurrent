@@ -11,14 +11,23 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <sys/types.h>
 #include "mergesort.h"
 #include "quicksort.h"
+#include "bucketsort.h"
+
+#define THREAD_MAX 150
+
+pthread_barrier_t bar;
+pthread_mutex_t lock_b;
+struct timespec start_time, end_time;
 
 /* usage - prints usage message */
 void usage(void)
 {
     fprintf(stderr, "Incorrect usage\n");
-    fprintf(stderr, "Usage: mysort <input_file> [-t NUM_THREADS] [-o output_file] --alg=<merge|quick>\n");
+    fprintf(stderr, "Usage: mysort <input_file> [-t NUM_THREADS] [-o output_file] --alg=<fjmerge|lkbucket>\n");
 }
 
 /* main - handles main subroutine */
@@ -64,7 +73,6 @@ int main (int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
     }
-
         
     char* src_file = argv[optind];
     /* Argument Parsing Ends */
@@ -86,15 +94,31 @@ int main (int argc, char **argv)
         }
     }
 
-    /* Select algorithm */
-    if (!strcmp(algo, "fjquick")) {
-        quicksort(num_array, 0, numbers-1);
+    if (threads > numbers) {
+        fprintf(stderr, "WARNING: Reducing number of threads to match number of elements or THREAD_MAX\n");
+        if (numbers > THREAD_MAX) {
+            threads = THREAD_MAX;
+        }
+        else {
+            threads = numbers;
+        }
     }
-    else if (!strcmp(algo, "fjmerge")) {
-        mergesort(num_array, 0, numbers-1);
+    if (threads > THREAD_MAX) {
+        fprintf(stderr, "WARNING: Reducing number of threads to match number of elements or THREAD_MAX\n");
+        threads = THREAD_MAX;
+    }
+
+    //printf("Array - %p\n", num_array);
+    /* Select algorithm */
+    if (!strcmp(algo, "fjmerge")) {
+        mergesort_thread_spawn(num_array, numbers, threads);
     }
     else if (!strcmp(algo, "lkbucket")) {
-        bucketsort(num_array, numbers);
+        bucketsort(num_array, numbers, threads);
+    }
+    else {
+        printf("Invalid algorithm\n");
+        usage();
     }
 
     /* Choose stdout if output file is not specified */
@@ -107,6 +131,13 @@ int main (int argc, char **argv)
     for(int index = 0; index < numbers; index++) {
         fprintf(out, "%d\n", num_array[index]);
     }
+
+    // Timing logic
+    uint64_t time_ns;
+	time_ns = (end_time.tv_sec-start_time.tv_sec)*1000000000 + (end_time.tv_nsec-start_time.tv_nsec);
+	printf("Time passed in ns: %lu\n", time_ns);
+	double time_s = ((double) time_ns)/1000000000.0;
+	printf("Time passed in s : %lf\n", time_s);
 
     /* Free allocated memory blocks */
     free(num_array);
