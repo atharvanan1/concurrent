@@ -70,6 +70,7 @@ void bucketsort(int *array, int numbers, int threads)
         index_array[bucket_val] = index_array[bucket_val] + 1;
     }
 
+    // Create an array to pass to the thread
     struct bucket bucket_array[threads];
     for (int index = 0; index < threads; index++) {
         bucket_array[index].thread_number = index + 1;
@@ -77,7 +78,7 @@ void bucketsort(int *array, int numbers, int threads)
         bucket_array[index].elements = index_array[index];
     }
 
-    // Spawn threads to sort individual elements
+    // Spawn threads to sort individual buckets
     pthread_barrier_init(&bar, NULL, (size_t) threads);
     pthread_t pthreads[threads];
 

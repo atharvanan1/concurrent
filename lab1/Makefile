@@ -10,7 +10,7 @@ CFLAGS = -Wall \
 		 -Werror
 
 mysort: main.c mergesort.c bucketsort.c
-	@$(CC) -o $@ $? -lm -pthread
+	@$(CC) $(CFLAGS) -o $@ $? -lm -pthread
 	@echo "mysort application compiled."
 
 .PHONY: clean

@@ -123,7 +123,7 @@ int main (int argc, char **argv)
 
     /* Choose stdout if output file is not specified */
     if (out_file == NULL) {
-        out_file = "/dev/stdout";
+        out_file = (char *) "/dev/stdout";
     }
 
     /* Write to output file */
