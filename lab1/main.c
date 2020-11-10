@@ -30,7 +30,6 @@ int main (int argc, char **argv)
     int opts;
     char algo[9];
     char *out_file = NULL;
-    int threads = 5;
 
     /* If no arguments are provided, exit */
     if (argc == 1) {
@@ -85,7 +84,7 @@ int main (int argc, char **argv)
     }
 
     /* Select algorithm */
-    mergesort_thread_spawn(num_array, numbers, threads);
+    mergesort_thread_spawn(num_array, numbers);
 
     /* Choose stdout if output file is not specified */
     if (out_file == NULL) {

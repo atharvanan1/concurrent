@@ -7,5 +7,5 @@
 #ifndef MERGESORT_H_
 #define MERGESORT_H_
 void mergesort(int *array, int lo, int hi);
-void mergesort_thread_spawn(int *array_pointer, int numbers, int threads);
+void mergesort_thread_spawn(int *array_pointer, int numbers);
 #endif
