@@ -9,8 +9,8 @@
 #include <math.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <omp.h>
 
-extern pthread_barrier_t bar;
 extern struct timespec start_time, end_time;
 
 // Split the array
@@ -99,26 +99,6 @@ void mergesort(int *array, int lo, int hi)
     }
 }
 
-void* mergesort_thread(void* args){
-    struct array *array_split = (struct array *)args;
-	
-    pthread_barrier_wait(&bar);
-
-	if(array_split->thread_number == 1){
-		clock_gettime(CLOCK_MONOTONIC,&start_time);
-	}
-    // printf("Thread - %d\n", array_split->thread_number);
-	pthread_barrier_wait(&bar);
-	
-    mergesort(array_split->array, 0, array_split->elements - 1);
-
-	printf("Thread %d reporting for duty\n", array_split->thread_number);
-
-	pthread_barrier_wait(&bar);
-	
-	return 0;
-}
-
 void mergesort_thread_spawn(int *array_pointer, int numbers, int threads) 
 {
     // Split the array
@@ -140,33 +120,26 @@ void mergesort_thread_spawn(int *array_pointer, int numbers, int threads)
         array_split[index].thread_number = index + 1;
     }
 
-    pthread_barrier_init(&bar, NULL, (size_t) threads);
-    pthread_t pthreads[threads];
 
-    // Feed into mergesort function with threads
-    for (int index = 0; index < threads; index++) {
-        printf("Spawning thread %d\n", index + 1);
-        int error = pthread_create(&pthreads[index], NULL, &mergesort_thread, &array_split[index]);
-        if(error)
-        {
-            fprintf(stderr, "ERROR: pthread_create - %d\n", error);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-
-    for(int index = 0; index < threads; index++)
+    // Spawn parallel threads
+    #pragma omp parallel shared(array_split) shared(start_time) shared(threads) default(none)
     {
-        int error = pthread_join(pthreads[index], NULL);
-        if(error)
-        {
-            fprintf(stderr, "ERROR: pthread_join - %d\n", error);
-            exit(EXIT_FAILURE);
-        }
-        printf("Thread %d Joined\n", index + 1);
-    }
 
-    pthread_barrier_destroy(&bar);
+        // Start the timer
+        #pragma omp single
+        {
+            clock_gettime(CLOCK_MONOTONIC,&start_time);
+        }
+        
+        printf("Thread %d reporting for duty\n", omp_get_thread_num());
+
+        #pragma omp barrier
+        
+        #pragma omp for
+        for (int index = 0; index < threads; index++) {
+            mergesort(array_split[index].array, 0, array_split[index].elements - 1);
+        }
+    }
 
     // Merge them all together
     for (int index = 1; index < threads; index ++) {

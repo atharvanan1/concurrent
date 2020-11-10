@@ -11,23 +11,16 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <sys/types.h>
 #include "mergesort.h"
-#include "quicksort.h"
-#include "bucketsort.h"
 
-#define THREAD_MAX 150
-
-pthread_barrier_t bar;
-pthread_mutex_t lock_b;
 struct timespec start_time, end_time;
 
 /* usage - prints usage message */
 void usage(void)
 {
     fprintf(stderr, "Incorrect usage\n");
-    fprintf(stderr, "Usage: mysort <input_file> [-t NUM_THREADS] [-o output_file] --alg=<fjmerge|lkbucket>\n");
+    fprintf(stderr, "Usage: mysort <input_file> [-o output_file]\n");
 }
 
 /* main - handles main subroutine */
@@ -49,7 +42,7 @@ int main (int argc, char **argv)
         {"name", no_argument, NULL, 'n'},
         {"alg", required_argument, NULL, 'a'}
     };
-    while ((opts = getopt_long (argc, argv, "nat:o:", long_options, NULL)) != -1) {
+    while ((opts = getopt_long (argc, argv, "nao:", long_options, NULL)) != -1) {
         switch (opts) {
             case 'o':
                 out_file = (char *) malloc(strlen(optarg) * sizeof(char));
@@ -64,9 +57,6 @@ int main (int argc, char **argv)
                 break;
             case 'a':
                 strcpy(algo, optarg);
-                break;
-            case 't':
-                threads = atoi(optarg);
                 break;
             default:
                 usage();
@@ -94,32 +84,8 @@ int main (int argc, char **argv)
         }
     }
 
-    if (threads > numbers) {
-        fprintf(stderr, "WARNING: Reducing number of threads to match number of elements or THREAD_MAX\n");
-        if (numbers > THREAD_MAX) {
-            threads = THREAD_MAX;
-        }
-        else {
-            threads = numbers;
-        }
-    }
-    if (threads > THREAD_MAX) {
-        fprintf(stderr, "WARNING: Reducing number of threads to match number of elements or THREAD_MAX\n");
-        threads = THREAD_MAX;
-    }
-
-    //printf("Array - %p\n", num_array);
     /* Select algorithm */
-    if (!strcmp(algo, "fjmerge")) {
-        mergesort_thread_spawn(num_array, numbers, threads);
-    }
-    else if (!strcmp(algo, "lkbucket")) {
-        bucketsort(num_array, numbers, threads);
-    }
-    else {
-        printf("Invalid algorithm\n");
-        usage();
-    }
+    mergesort_thread_spawn(num_array, numbers, threads);
 
     /* Choose stdout if output file is not specified */
     if (out_file == NULL) {
